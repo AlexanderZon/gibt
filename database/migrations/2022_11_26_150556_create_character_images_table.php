@@ -13,13 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('character_images', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->timestamp('email_verified_at')->nullable();
-            $table->timestamp('last_activity_at')->nullable();
+            $table->unsignedBigInteger('character_id');
+            $table->enum('type', ['icon', 'side_icon', 'gacha_card', 'gacha_splash', 'namecard']);
+            $table->string('url');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -32,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('character_images');
     }
 };
