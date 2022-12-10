@@ -19,7 +19,7 @@ class VisionResource extends JsonResource
     public function toArray($request)
     {
         $data = parent::toArray($request);
-        if($data['icon'] != null) $data['icon'] = Storage::url($data['icon']);
+        if(isset($data['icon']) AND $data['icon'] != null) $data['icon'] = Storage::url($data['icon']);
         return $data;
     }
 }

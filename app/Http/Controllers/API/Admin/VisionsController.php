@@ -44,6 +44,7 @@ class VisionsController extends Controller
         $vision = new Vision();
         $vision->name = $request->input('name');
 
+        self::refreshModelOrders();
         $total_visions = Vision::all()->count();
         $vision->order = $total_visions+1;
         $vision->save();
@@ -82,7 +83,12 @@ class VisionsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $vision = Vision::find($id);
+        $vision->name = $request->input('name');
+
+        $vision->save();
+
+        return new VisionResource($vision);
     }
 
     /**
@@ -93,7 +99,10 @@ class VisionsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $vision = Vision::find($id);        
+        $vision->delete();
+
+        return new VisionResource($vision);
     }
 
     /**
@@ -110,6 +119,18 @@ class VisionsController extends Controller
         $vision->icon = $path;
         $vision->save();
 
+        self::refreshModelOrders();
+
         return new VisionResource($vision);
+    }
+
+    public static function refreshModelOrders(){
+        $visions = Vision::orderBy('order', 'ASC')->get();
+
+        $counter = 0;
+        foreach($visions as $vision){
+            $vision->order = $counter++;
+            $vision->save();
+        }
     }
 }
