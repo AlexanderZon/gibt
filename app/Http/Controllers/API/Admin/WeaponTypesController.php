@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\API\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\API\Admin\Associations\AssociationResource;
-use App\Models\Association;
+use App\Http\Resources\API\Admin\WeaponTypes\WeaponTypeResource;
+use App\Models\Weapon\Type as WeaponType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class AssociationsController extends Controller
+class WeaponTypesController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,9 +17,9 @@ class AssociationsController extends Controller
      */
     public function index()
     {
-        $associations = Association::all();
+        $weapon_types = WeaponType::all();
 
-        return AssociationResource::collection($associations);
+        return WeaponTypeResource::collection($weapon_types);
     }
 
     /**
@@ -40,15 +40,15 @@ class AssociationsController extends Controller
      */
     public function store(Request $request)
     {
-        $association = new Association();
-        $association->name = $request->input('name');
+        $weapon_type = new WeaponType();
+        $weapon_type->name = $request->input('name');
 
         self::refreshModelOrders();
-        $total_associations = Association::all()->count();
-        $association->order = $total_associations+1;
-        $association->save();
+        $total_weapon_types = WeaponType::all()->count();
+        $weapon_type->order = $total_weapon_types+1;
+        $weapon_type->save();
 
-        return new AssociationResource($association);
+        return new WeaponTypeResource($weapon_type);
     }
 
     /**
@@ -82,12 +82,12 @@ class AssociationsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $association = Association::find($id);
-        $association->name = $request->input('name');
+        $weapon_type = WeaponType::find($id);
+        $weapon_type->name = $request->input('name');
 
-        $association->save();
+        $weapon_type->save();
 
-        return new AssociationResource($association);
+        return new WeaponTypeResource($weapon_type);
     }
 
     /**
@@ -98,10 +98,10 @@ class AssociationsController extends Controller
      */
     public function destroy($id)
     {
-        $association = Association::find($id);        
-        $association->delete();
+        $weapon_type = WeaponType::find($id);        
+        $weapon_type->delete();
 
-        return new AssociationResource($association);
+        return new WeaponTypeResource($weapon_type);
     }
 
     /**
@@ -112,24 +112,24 @@ class AssociationsController extends Controller
      */
     public function picture(Request $request, $id)
     {        
-        $path = Storage::put('associations/icons', $request->file('file'));
+        $path = Storage::put('weapon-types/icons', $request->file('file'));
 
-        $association = Association::find($id);
-        $association->icon = $path;
-        $association->save();
+        $weapon_type = WeaponType::find($id);
+        $weapon_type->icon = $path;
+        $weapon_type->save();
 
         self::refreshModelOrders();
 
-        return new AssociationResource($association);
+        return new WeaponTypeResource($weapon_type);
     }
 
     public static function refreshModelOrders(){
-        $associations = Association::orderBy('order', 'ASC')->get();
+        $weapon_types = WeaponType::orderBy('order', 'ASC')->get();
 
         $counter = 0;
-        foreach($associations as $association){
-            $association->order = $counter++;
-            $association->save();
+        foreach($weapon_types as $weapon_type){
+            $weapon_type->order = $counter++;
+            $weapon_type->save();
         }
     }
 }

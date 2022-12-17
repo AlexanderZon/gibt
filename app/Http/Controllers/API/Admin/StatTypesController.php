@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\API\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\API\Admin\Associations\AssociationResource;
-use App\Models\Association;
+use App\Http\Resources\API\Admin\StatTypes\StatTypeResource;
 use Illuminate\Http\Request;
+use App\Models\Stat\Type as StatType;
 use Illuminate\Support\Facades\Storage;
 
-class AssociationsController extends Controller
+class StatTypesController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,9 +17,9 @@ class AssociationsController extends Controller
      */
     public function index()
     {
-        $associations = Association::all();
+        $stat_types = StatType::all();
 
-        return AssociationResource::collection($associations);
+        return StatTypeResource::collection($stat_types);
     }
 
     /**
@@ -40,15 +40,16 @@ class AssociationsController extends Controller
      */
     public function store(Request $request)
     {
-        $association = new Association();
-        $association->name = $request->input('name');
+        $stat_type = new StatType();
+        $stat_type->name = $request->input('name');
+        $stat_type->code = $request->input('code');
 
         self::refreshModelOrders();
-        $total_associations = Association::all()->count();
-        $association->order = $total_associations+1;
-        $association->save();
+        $total_stat_types = StatType::all()->count();
+        $stat_type->order = $total_stat_types+1;
+        $stat_type->save();
 
-        return new AssociationResource($association);
+        return new StatTypeResource($stat_type);
     }
 
     /**
@@ -82,12 +83,13 @@ class AssociationsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $association = Association::find($id);
-        $association->name = $request->input('name');
+        $stat_type = StatType::find($id);
+        $stat_type->name = $request->input('name');
+        $stat_type->code = $request->input('code');
 
-        $association->save();
+        $stat_type->save();
 
-        return new AssociationResource($association);
+        return new StatTypeResource($stat_type);
     }
 
     /**
@@ -98,38 +100,19 @@ class AssociationsController extends Controller
      */
     public function destroy($id)
     {
-        $association = Association::find($id);        
-        $association->delete();
+        $stat_type = StatType::find($id);        
+        $stat_type->delete();
 
-        return new AssociationResource($association);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function picture(Request $request, $id)
-    {        
-        $path = Storage::put('associations/icons', $request->file('file'));
-
-        $association = Association::find($id);
-        $association->icon = $path;
-        $association->save();
-
-        self::refreshModelOrders();
-
-        return new AssociationResource($association);
+        return new StatTypeResource($stat_type);
     }
 
     public static function refreshModelOrders(){
-        $associations = Association::orderBy('order', 'ASC')->get();
+        $stat_types = StatType::orderBy('order', 'ASC')->get();
 
         $counter = 0;
-        foreach($associations as $association){
-            $association->order = $counter++;
-            $association->save();
+        foreach($stat_types as $stat_type){
+            $stat_type->order = $counter++;
+            $stat_type->save();
         }
     }
 }
