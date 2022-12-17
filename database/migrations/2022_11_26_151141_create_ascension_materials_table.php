@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->tinyInteger('rarity');
             $table->text('description');
-            $table->string('icon');
+            $table->string('icon')->nullable();
             $table->unsignedInteger('order');
             $table->timestamps();
             $table->softDeletes();

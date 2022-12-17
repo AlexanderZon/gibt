@@ -27,7 +27,7 @@ class AscensionMaterial extends Model
         return $this->belongsToMany(Weapon::class, 'weapon_ascension_materials', 'ascension_material_id', 'weapon_id');
     }
 
-    public function ascensionMeterialTypes(){
+    public function ascensionMaterialTypes(){
         return $this->belongsToMany(Type::class, 'ascension_materials_types', 'ascension_material_id', 'type_id');
     }
 
