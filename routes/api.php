@@ -20,6 +20,7 @@ Route::prefix('admin')->namespace('App\Http\Controllers\API\Admin')->group(funct
     Route::resource('ascension-materials', AscensionMaterialsController::class);
     Route::post('associations/{association_id}/picture', AssociationsController::class.'@picture');
     Route::resource('associations', AssociationsController::class);
+    Route::resource('characters', CharactersController::class);
     Route::post('elements/{element_id}/picture', ElementsController::class.'@picture');
     Route::resource('elements', ElementsController::class);
     Route::post('visions/{vision_id}/picture', VisionsController::class.'@picture');

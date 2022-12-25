@@ -18,7 +18,7 @@ class AscensionMaterialsController extends Controller
      */
     public function index()
     {
-        $ascension_materials = AscensionMaterial::orderBy('order', 'ASC')->get();
+        $ascension_materials = AscensionMaterial::orderBy('order', 'DESC')->get();
 
         $ascension_materials->load(['ascensionMaterialTypes']);
 
