@@ -38,6 +38,22 @@ class Character extends Model
         return $this->hasMany(Image::class, 'character_id', 'id');
     }
 
+    public function characterIcon(){
+        return $this->hasOne(Image::class, 'character_id', 'id')->where('type','=','icon');
+    }
+
+    public function characterSideIcon(){
+        return $this->hasOne(Image::class, 'character_id', 'id')->where('type','=','side_icon');
+    }
+
+    public function characterGachaCard(){
+        return $this->hasOne(Image::class, 'character_id', 'id')->where('type','=','gacha_card');
+    }
+
+    public function characterGachaSplash(){
+        return $this->hasOne(Image::class, 'character_id', 'id')->where('type','=','gacha_splash');
+    }
+
     public function ascensionMaterials(){
         return $this->belongsToMany(AscensionMaterial::class, 'character_ascension_materials', 'character_id', 'ascension_material_id');
     }

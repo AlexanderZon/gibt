@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\Admin;
+namespace App\Http\Controllers\API\Admin\Characters;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\Admin\AscensionMaterials\AscensionMaterialResource;
@@ -11,10 +11,12 @@ use App\Http\Resources\API\Admin\WeaponTypes\WeaponTypeResource;
 use App\Models\AscensionMaterial;
 use App\Models\Association;
 use App\Models\Character;
+use App\Models\Character\Image;
 use App\Models\Element;
 use App\Models\Vision;
 use App\Models\Weapon\Type as WeaponType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CharactersController extends Controller
 {
@@ -27,7 +29,7 @@ class CharactersController extends Controller
     {
         $characters = Character::all();
 
-        $characters->load(['element', 'vision', 'weaponType', 'ascensionMaterials']);
+        $characters->load(['element', 'vision', 'weaponType', 'ascensionMaterials', 'characterIcon']);
 
         return [
             'data' => CharacterResource::collection($characters),
@@ -100,7 +102,23 @@ class CharactersController extends Controller
     {
         $character = Character::find($id);
 
-        $character->load(['element', 'vision', 'weaponType', 'association', 'ascensionMaterials', 'skillAscensionMaterials']);
+        $character->load([
+            'element', 
+            'vision', 
+            'weaponType', 
+            'association', 
+            'ascensionMaterials', 
+            'skillAscensionMaterials', 
+            'characterIcon', 
+            'characterSideIcon', 
+            'characterGachaCard', 
+            'characterGachaSplash',
+            'characterStats.variableStat',
+            'characterStats.charJewel',
+            'characterStats.charElementalStone',
+            'characterStats.charLocalMaterial',
+            'characterStats.charCommonItem',
+        ]);
 
         return [
             'model' => new CharacterResource($character),
@@ -148,6 +166,37 @@ class CharactersController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function picture(Request $request, $id)
+    {        
+        $character = Character::find($id);
+        
+        $path = Storage::put('characters/gallery', $request->file('file'));
+
+        $character_icon = null;
+        switch($request->type){
+            case 'icon': 
+                $character_icon = $character->characterIcon;
+                break;
+        }
+        if($character_icon == null){
+            $character_icon = new Image();
+            $character_icon->character_id = $character->id;
+            $character_icon->type = $request->type;
+        }
+        $character_icon->url = $path;
+        $character_icon->save();
+
+        $character->load(['element', 'vision', 'weaponType', 'association', 'ascensionMaterials', 'skillAscensionMaterials', 'characterIcon', 'characterSideIcon', 'characterGachaCard', 'characterGachaSplash']);
+
+        return new CharacterResource($character);
     }
 
     public static function getFormData(){

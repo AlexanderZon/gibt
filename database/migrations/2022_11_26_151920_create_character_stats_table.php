@@ -26,7 +26,7 @@ return new class extends Migration
             $table->float('variable_stat_value', 7,2);
             $table->unsignedBigInteger('char_jewel_id');
             $table->unsignedInteger('char_jewel_quantity');
-            $table->unsignedBigInteger('char_elemental_id');
+            $table->unsignedBigInteger('char_elemental_stone_id');
             $table->unsignedInteger('char_elemental_quantity');
             $table->unsignedBigInteger('char_local_material_id');
             $table->unsignedInteger('char_local_material_quantity');
