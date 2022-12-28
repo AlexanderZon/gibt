@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CrawlerAllowRequestMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,10 @@ Route::prefix('admin')->namespace('App\Http\Controllers\API\Admin')->group(funct
     Route::resource('stat-types', StatTypesController::class);
     Route::post('weapon-types/{weapon_type_id}/picture', WeaponTypesController::class.'@picture');
     Route::resource('weapon-types', WeaponTypesController::class);
+});
+
+Route::prefix('crawler')->middleware(CrawlerAllowRequestMiddleware::class)->namespace('App\Http\Controllers\API\Crawler')->group(function(){
+    Route::resource('characters', Characters\CharactersController::class);
 });
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

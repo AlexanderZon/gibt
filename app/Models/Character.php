@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Models\Character\Image;
 use App\Models\AscensionMaterial;
-use App\Models\Character\Skill\AscensionMaterial as SkillAscensionMaterial;
+use App\Models\Character\Skill\Ascension as SkillAscension;
 use App\Models\Character\Stat;
 use App\Models\Weapon\Type;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -63,7 +63,7 @@ class Character extends Model
     }
 
     public function characterSkillAscensions(){
-        return $this->hasMany(SkillAscensionMaterial::class, 'character_id', 'id');
+        return $this->hasMany(SkillAscension::class, 'character_id', 'id');
     }
 
     public function characterStats(){

@@ -23,6 +23,8 @@ return new class extends Migration
             $table->unsignedInteger('char_common_item_quantity');
             $table->unsignedBigInteger('talent_boss_item_id');
             $table->unsignedInteger('talent_boss_item_quantity');
+            $table->unsignedBigInteger('reward_item_id');
+            $table->unsignedInteger('reward_item_quantity');
             $table->unsignedInteger('mora_quantity');
             $table->timestamps();
             $table->softDeletes();
