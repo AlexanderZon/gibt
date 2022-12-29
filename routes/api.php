@@ -21,6 +21,7 @@ Route::prefix('admin')->namespace('App\Http\Controllers\API\Admin')->group(funct
     Route::resource('ascension-materials', AscensionMaterialsController::class);
     Route::post('associations/{association_id}/picture', AssociationsController::class.'@picture');
     Route::resource('associations', AssociationsController::class);
+    Route::resource('characters/{character_id}/skills', Characters\Skills\SkillsController::class);
     Route::resource('characters/{character_id}/stats', Characters\Stats\StatsController::class);
     Route::post('characters/{character_id}/picture', Characters\CharactersController::class.'@picture');
     Route::resource('characters', Characters\CharactersController::class);

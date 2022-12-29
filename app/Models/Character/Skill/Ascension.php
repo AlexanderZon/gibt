@@ -2,6 +2,7 @@
 
 namespace App\Models\Character\Skill;
 
+use App\Models\AscensionMaterial;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -23,5 +24,9 @@ class Ascension extends Model
 
     public function talentBossItem(){
         return $this->belongsTo(AscensionMaterial::class, 'talent_boss_item_id', 'id');
+    }
+
+    public function rewardItem(){
+        return $this->belongsTo(AscensionMaterial::class, 'reward_item_id', 'id');
     }
 }

@@ -118,6 +118,10 @@ class CharactersController extends Controller
             'characterStats.charElementalStone',
             'characterStats.charLocalMaterial',
             'characterStats.charCommonItem',
+            'characterSkillAscensions.talentBookItem',
+            'characterSkillAscensions.talentBossItem',
+            'characterSkillAscensions.rewardItem',
+            'characterSkillAscensions.charCommonItem',
         ]);
 
         return [

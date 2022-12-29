@@ -4,6 +4,7 @@ namespace App\Http\Resources\API\Admin\Characters;
 
 use App\Http\Resources\API\Admin\AscensionMaterials\AscensionMaterialResource;
 use App\Http\Resources\API\Admin\Characters\Images\ImageResource;
+use App\Http\Resources\API\Admin\Characters\Skills\SkillResource;
 use App\Http\Resources\API\Admin\Characters\Stats\StatResource;
 use App\Http\Resources\API\Admin\Elements\ElementResource;
 use App\Http\Resources\API\Admin\Visions\VisionResource;
@@ -31,6 +32,7 @@ class CharacterResource extends JsonResource
         if(isset($data['ascension_materials']) AND $data['ascension_materials'] != null) $data['ascension_materials'] = AscensionMaterialResource::collection($data['ascension_materials']);
         if(isset($data['skill_ascension_materials']) AND $data['skill_ascension_materials'] != null) $data['skill_ascension_materials'] = AscensionMaterialResource::collection($data['skill_ascension_materials']);
         if(isset($data['character_stats']) AND $data['character_stats'] != null) $data['character_stats'] = StatResource::collection($data['character_stats']);
+        if(isset($data['character_skill_ascensions']) AND $data['character_skill_ascensions'] != null) $data['character_skill_ascensions'] = SkillResource::collection($data['character_skill_ascensions']);
         return $data;
     }
 }
