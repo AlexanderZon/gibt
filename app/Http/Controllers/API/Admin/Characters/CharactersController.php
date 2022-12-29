@@ -185,6 +185,15 @@ class CharactersController extends Controller
             case 'icon': 
                 $character_icon = $character->characterIcon;
                 break;
+            case 'side_icon': 
+                $character_icon = $character->characterSideIcon;
+                break;
+            case 'gacha_card': 
+                $character_icon = $character->characterGachaCard;
+                break;
+            case 'gacha_splash': 
+                $character_icon = $character->characterGachaSplash;
+                break;
         }
         if($character_icon == null){
             $character_icon = new Image();

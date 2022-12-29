@@ -16,10 +16,14 @@ class CrawlerAllowRequestMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if($request->server('HTTP_HOST') == 'gibt'){
-            return $next($request);
+        if(env('APP_ENV') == 'production'){
+            if($request->server('HTTP_HOST') == 'gibt'){
+                return $next($request);
+            } else {
+                return response('You are not allowed to access this endpoint', 403);
+            }
         } else {
-            return response('You are not allowed to access this endpoint', 403);
+            return $next($request);
         }
     }
 }

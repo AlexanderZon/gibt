@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AscensionMaterial;
 use App\Models\Association;
 use App\Models\Character;
+use App\Models\Character\Image;
 use App\Models\Character\Skill\Ascension as CharacterSkillAscension;
 use App\Models\Character\Stat as CharacterStat;
 use App\Models\Element;
@@ -13,6 +14,8 @@ use App\Models\Stat\Type as StatType;
 use App\Models\Vision;
 use App\Models\Weapon\Type as WeaponType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use \Illuminate\Support\Str;
 
 class CharactersController extends Controller
 {
@@ -253,7 +256,6 @@ class CharactersController extends Controller
             }
             $character_skills->push($character_skill_ascension);
         }
-        
         if($save) {
             $character->save();
             $character->ascensionMaterials()->sync($ascension_materials);
@@ -268,6 +270,37 @@ class CharactersController extends Controller
             foreach($character_skills as $character_skill){
                 $character_skill->character_id = $character->id;
                 $character_skill->save();
+            }
+
+            foreach($request->input('gallery') as $character_image){
+                $file = file_get_contents($character_image['url']);
+                $name = Str::slug($character->name).'_'.$character_image['type'].'.webp';
+                $path = 'characters/gallery/'.$name;
+                $is_saved = Storage::put($path, $file);
+                if($is_saved){
+                    $character_icon = null;
+                    switch($character_image['type']){
+                        case 'icon': 
+                            $character_icon = $character->characterIcon;
+                            break;
+                        case 'side_icon': 
+                            $character_icon = $character->characterSideIcon;
+                            break;
+                        case 'gacha_card': 
+                            $character_icon = $character->characterGachaCard;
+                            break;
+                        case 'gacha_splash': 
+                            $character_icon = $character->characterGachaSplash;
+                            break;
+                    }
+                    if($character_icon == null){
+                        $character_icon = new Image();
+                        $character_icon->character_id = $character->id;
+                        $character_icon->type = $character_image['type'];
+                    }
+                    $character_icon->url = $path;
+                    $character_icon->save();    
+                }
             }
         }
 
