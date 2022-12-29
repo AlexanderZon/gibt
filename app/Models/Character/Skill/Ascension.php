@@ -13,8 +13,8 @@ class Ascension extends Model
 
     protected $table = 'character_skill_ascensions';
 
-    public function talentBook(){
-        return $this->belongsTo(AscensionMaterial::class, 'talent_book_id', 'id');
+    public function talentBookItem(){
+        return $this->belongsTo(AscensionMaterial::class, 'talent_book_item_id', 'id');
     }
 
     public function charCommonItem(){

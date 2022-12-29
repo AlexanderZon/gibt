@@ -210,8 +210,8 @@ class CharactersController extends Controller
         foreach($request->input('character_skills') as $character_skill_data){
             $character_skill_ascension = new CharacterSkillAscension();
             $character_skill_ascension->level = $character_skill_data['level'];
-            $character_skill_ascension->talent_book_id = 0;
-            $character_skill_ascension->talent_book_quantity = 0;
+            $character_skill_ascension->talent_book_item_id = 0;
+            $character_skill_ascension->talent_book_item_quantity = 0;
             $character_skill_ascension->talent_boss_item_id = 0;
             $character_skill_ascension->talent_boss_item_quantity = 0;
             $character_skill_ascension->reward_item_id = 0;
@@ -228,8 +228,8 @@ class CharactersController extends Controller
                         if($character_skill_material->ascensionMaterialTypes->some(function($value){
                             return $value->name == "Book Materials";
                         })){
-                            $character_skill_ascension->talent_book_id = $character_skill_material->id;
-                            $character_skill_ascension->talent_book_quantity = $character_skill_material_data['quantity'];
+                            $character_skill_ascension->talent_book_item_id = $character_skill_material->id;
+                            $character_skill_ascension->talent_book_item_quantity = $character_skill_material_data['quantity'];
                         }
                         else if($character_skill_material->ascensionMaterialTypes->some(function($value){
                             return $value->name == "Boss Materials";

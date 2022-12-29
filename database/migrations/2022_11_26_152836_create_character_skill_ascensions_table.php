@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('character_id');
             $table->string('level');
-            $table->unsignedBigInteger('talent_book_id');
-            $table->unsignedInteger('talent_book_quantity');
+            $table->unsignedBigInteger('talent_book_item_id');
+            $table->unsignedInteger('talent_book_item_quantity');
             $table->unsignedBigInteger('char_common_item_id');
             $table->unsignedInteger('char_common_item_quantity');
             $table->unsignedBigInteger('talent_boss_item_id');
