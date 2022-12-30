@@ -30,6 +30,9 @@ Route::prefix('admin')->namespace('App\Http\Controllers\API\Admin')->group(funct
     Route::post('visions/{vision_id}/picture', VisionsController::class.'@picture');
     Route::resource('visions', VisionsController::class);
     Route::resource('stat-types', StatTypesController::class);
+    Route::resource('weapons/{weapon_id}/stats', Weapons\Stats\StatsController::class);
+    Route::post('weapons/{weapon_id}/picture', Weapons\WeaponsController::class.'@picture');
+    Route::resource('weapons', Weapons\WeaponsController::class);
     Route::post('weapon-types/{weapon_type_id}/picture', WeaponTypesController::class.'@picture');
     Route::resource('weapon-types', WeaponTypesController::class);
 });

@@ -19,15 +19,15 @@ class Stat extends Model
         return $this->belongsTo(Type::class, 'variable_stat_id', 'id');
     }
 
-    public function weaponPrimaryMaterial(){
+    public function weapPrimaryMaterial(){
         return $this->belongsTo(AscensionMaterial::class, 'weap_primary_material_id', 'id');
     }
 
-    public function weaponSecondaryMaterial(){
+    public function weapSecondaryMaterial(){
         return $this->belongsTo(AscensionMaterial::class, 'weap_secondary_material_id', 'id');
     }
 
-    public function weaponCommonItem(){
+    public function weapCommonItem(){
         return $this->belongsTo(AscensionMaterial::class, 'weap_common_item_id', 'id');
     }
 }

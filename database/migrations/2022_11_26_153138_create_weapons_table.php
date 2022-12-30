@@ -18,10 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('weapon_type_id');
             $table->string('name');
             $table->tinyInteger('rarity');
-            $table->float('base_attack', 7, 2);
-            $table->unsignedBigInteger('substat_type_id');
-            $table->float('substat_value', 7, 2);
             $table->text('description');
+            $table->boolean('released');
             $table->timestamps();
             $table->softDeletes();
         });

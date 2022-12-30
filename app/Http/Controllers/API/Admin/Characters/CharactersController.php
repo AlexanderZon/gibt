@@ -27,9 +27,9 @@ class CharactersController extends Controller
      */
     public function index()
     {
-        $characters = Character::all();
+        $characters = Character::orderBy('id', 'DESC')->get();
 
-        $characters->load(['element', 'vision', 'weaponType', 'ascensionMaterials', 'characterIcon']);
+        $characters->load(['element', 'vision', 'weaponType', 'ascensionMaterials', 'skillAscensionMaterials', 'characterIcon']);
 
         return [
             'data' => CharacterResource::collection($characters),

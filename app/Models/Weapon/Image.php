@@ -11,5 +11,5 @@ class Image extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'weeapon_images';
+    protected $table = 'weapon_images';
 }

@@ -31,6 +31,7 @@ class CharacterResource extends JsonResource
         if(isset($data['weapon_type']) AND $data['weapon_type'] != null) $data['weapon_type'] = new WeaponTypeResource($data['weapon_type']);
         if(isset($data['ascension_materials']) AND $data['ascension_materials'] != null) $data['ascension_materials'] = AscensionMaterialResource::collection($data['ascension_materials']);
         if(isset($data['skill_ascension_materials']) AND $data['skill_ascension_materials'] != null) $data['skill_ascension_materials'] = AscensionMaterialResource::collection($data['skill_ascension_materials']);
+        if(isset($data['skill_ascension_materials']) AND $data['skill_ascension_materials'] != null) $data['skill_ascension_materials'] = AscensionMaterialResource::collection($data['skill_ascension_materials']);
         if(isset($data['character_stats']) AND $data['character_stats'] != null) $data['character_stats'] = StatResource::collection($data['character_stats']);
         if(isset($data['character_skill_ascensions']) AND $data['character_skill_ascensions'] != null) $data['character_skill_ascensions'] = SkillResource::collection($data['character_skill_ascensions']);
         return $data;

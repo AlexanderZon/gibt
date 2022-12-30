@@ -21,6 +21,18 @@ class Weapon extends Model
         return $this->hasMany(Image::class, 'weapon_id', 'id');
     }
 
+    public function weaponIcon(){
+        return $this->hasOne(Image::class, 'weapon_id', 'id')->where('type','=','icon');
+    }
+
+    public function weaponAwakenedIcon(){
+        return $this->hasOne(Image::class, 'weapon_id', 'id')->where('type','=','awakened_icon');
+    }
+
+    public function weaponGachaCard(){
+        return $this->hasOne(Image::class, 'weapon_id', 'id')->where('type','=','gacha_card');
+    }
+
     public function weaponType(){
         return $this->belongsTo(Type::class, 'weapon_type_id', 'id');
     }
