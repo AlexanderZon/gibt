@@ -38,6 +38,7 @@ Route::prefix('admin')->namespace('App\Http\Controllers\API\Admin')->group(funct
 });
 
 Route::prefix('crawler')->middleware(CrawlerAllowRequestMiddleware::class)->namespace('App\Http\Controllers\API\Crawler')->group(function(){
+    Route::resource('weapons', Weapons\WeaponsController::class);
     Route::resource('characters', Characters\CharactersController::class);
 });
 

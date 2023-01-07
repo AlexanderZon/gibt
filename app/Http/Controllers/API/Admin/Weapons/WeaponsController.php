@@ -22,7 +22,7 @@ class WeaponsController extends Controller
      */
     public function index()
     {
-        $weapons = Weapon::all();
+        $weapons = Weapon::orderBy('id', 'DESC')->get();
 
         $weapons->load(['weaponType', 'ascensionMaterials', 'weaponIcon']);
 
