@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace App\Http\Middleware\API\App;
 
 use Closure;
 use Illuminate\Http\Request;
 
-class CrawlerAllowRequestMiddleware
+class GlobalMiddleware
 {
     /**
      * Handle an incoming request.
@@ -16,14 +16,6 @@ class CrawlerAllowRequestMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if(env('APP_ENV') == 'production'){
-            if($request->server('HTTP_HOST') == 'gibt'){
-                return $next($request);
-            } else {
-                return response('You are not allowed to access this endpoint', 403);
-            }
-        } else {
-            return $next($request);
-        }
+        return $next($request);
     }
 }

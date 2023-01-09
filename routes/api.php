@@ -1,6 +1,9 @@
 <?php
 
-use App\Http\Middleware\CrawlerAllowRequestMiddleware;
+use App\Http\Middleware\API\Admin\CorsMiddleware;
+use App\Http\Middleware\API\Crawler\AllowRequestMiddleware;
+use App\Http\Middleware\API\App\GlobalMiddleware;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('admin')->namespace('App\Http\Controllers\API\Admin')->group(function(){
+Route::prefix('admin')->middleware(CorsMiddleware::class)->namespace('App\Http\Controllers\API\Admin')->group(function(){
     Route::resource('ascension-material-types', AscensionMaterialTypesController::class);
     Route::post('ascension-materials/{ascension_material_id}/picture', AscensionMaterialsController::class.'@picture');
     Route::resource('ascension-materials', AscensionMaterialsController::class);
@@ -37,11 +40,21 @@ Route::prefix('admin')->namespace('App\Http\Controllers\API\Admin')->group(funct
     Route::resource('weapon-types', WeaponTypesController::class);
 });
 
-Route::prefix('crawler')->middleware(CrawlerAllowRequestMiddleware::class)->namespace('App\Http\Controllers\API\Crawler')->group(function(){
-    Route::resource('weapons', Weapons\WeaponsController::class);
-    Route::resource('characters', Characters\CharactersController::class);
+Route::prefix('crawler')->middleware(AllowRequestMiddleware::class)->namespace('App\Http\Controllers\API\Crawler')->group(function(){
+    Route::resource('weapons', Weapons\WeaponsController::class)->only(['store']);
+    Route::resource('characters', Characters\CharactersController::class)->only(['store']);
 });
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
+
+Route::prefix('app')->namespace('App\Http\Controllers\API\App')->group(function(){
+    Route::resource('auth/forgot', Auth\ForgotController::class);
+    Route::resource('auth/signup', Auth\SignupController::class);
+    Route::resource('auth/login', Auth\LoginController::class);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/app/users', function(){
+        return User::all();
+    });
+    Route::resource('/app/auth/logout', App\Http\Controllers\API\App\Auth\LogoutController::class)->only(['store']);
+});
