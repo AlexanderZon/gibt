@@ -16,7 +16,7 @@ class AllowRequestMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if(env('APP_ENV') == 'production'){
+        if(config('app.env') == 'production'){
             if($request->server('HTTP_HOST') == 'gibt'){
                 return $next($request);
             } else {

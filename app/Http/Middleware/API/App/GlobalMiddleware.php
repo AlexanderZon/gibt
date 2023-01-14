@@ -16,6 +16,12 @@ class GlobalMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        if(config('app.debug') == true AND !$request->headers->has('Access-Control-Allow-Origin')){
+            // header('Access-Control-Allow-Origin: '.$request->server('HTTP_ORIGIN'));
+        }
+        if(config('app.debug') == true AND !$request->headers->has('Access-Control-Allow-Credentials')){
+            // header('Access-Control-Allow-Credentials: true');
+        }
         return $next($request);
     }
 }

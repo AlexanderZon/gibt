@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\API\App\Auth;
 
 use App\Http\Controllers\Controller;
-use Auth;
 use Illuminate\Http\Request;
 
-class LogoutController extends Controller
+class CheckController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,7 +14,8 @@ class LogoutController extends Controller
      */
     public function index()
     {
-        //
+        $user = auth()->user();
+        return ['user' => $user];
     }
 
     /**
@@ -36,9 +36,7 @@ class LogoutController extends Controller
      */
     public function store(Request $request)
     {
-        $request->session()->invalidate();
-        
-        return 'Logged out';
+        //
     }
 
     /**
