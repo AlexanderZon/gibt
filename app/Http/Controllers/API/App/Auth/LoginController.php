@@ -50,7 +50,7 @@ class LoginController extends Controller
             return auth()->user();
         }
             
-        return abort(401);
+        return abort(401, 'Wrong Credentials');
     }
 
     /**

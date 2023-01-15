@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\App\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CheckController extends Controller
@@ -14,7 +15,14 @@ class CheckController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
+        $auth_user = auth()->user();
+
+        $user = null;
+        if($auth_user != null){
+            $user = User::find($auth_user->id);
+            $user->load(['accounts']);
+        }
+        
         return ['user' => $user];
     }
 

@@ -2,11 +2,11 @@
 
 namespace App\Exceptions\API\App\Auth\Signup;
 
-use Exception;
+use App\Exceptions\HandledException;
 
-class EmailAlreadyExistsException extends Exception
+class EmailAlreadyExistsException extends HandledException
 {
     public function __construct($email){
-        parent::__construct("Email $email already exists");
+        parent::__construct("E-mail `$email` already exists");
     }
 }

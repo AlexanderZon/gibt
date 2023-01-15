@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\App\Auth;
 
 use App\Exceptions\API\App\Auth\Signup\EmailAlreadyExistsException;
 use App\Http\Controllers\Controller;
+use App\Models\Account;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -44,6 +45,12 @@ class SignupController extends Controller
         $user->email = $request->input('email');
         $user->password = Hash::make($request->input('password'));
         $user->save();
+
+        $account = new Account();
+        $account->user_id = $user->id;
+        $account->title = '(No named account)';
+        $account->game_server = 'NA';
+        $account->save();
     }
 
     /**
