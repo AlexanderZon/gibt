@@ -4,6 +4,7 @@ namespace App\Models\Account;
 
 use App\Models\Account;
 use App\Models\Artifact;
+use App\Models\Character as ModelsCharacter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,7 +21,7 @@ class Character extends Model
     }
 
     public function character(){
-        return $this->belongsTo(Character::class, 'character_id');
+        return $this->belongsTo(ModelsCharacter::class, 'character_id');
     }
 
     public function accountWeapon(){
