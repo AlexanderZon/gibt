@@ -10,6 +10,8 @@ use App\Models\Character as Character;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Exceptions\API\App\Accounts\Characters\CharacterDoNotBelongsToActualAccountException;
+use App\Http\Resources\API\App\Accounts\Weapons\WeaponResource;
+use App\Models\Account\Weapon;
 
 class CharactersController extends Controller
 {
@@ -18,12 +20,9 @@ class CharactersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $user = User::find(auth()->user()->id);
-        $user->load(['accounts']);
-        $actual_account = $user->accounts()->first();
-        $list = $actual_account->accountCharacters;
+        $list = $request->actualAccount->accountCharacters;
         $list->load(['character.characterIcon']);
 
         return [
@@ -36,15 +35,27 @@ class CharactersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        $characters_list = Character::where('released','=',1)->get();
+        $account_characters_ids = $request->actualAccount->accountCharacters()->select(['character_id'])->get()->map(function($account_character) { return $account_character->character_id; });
+
+        $characters_list = Character::whereReleased(1)->whereNotIn('id', $account_characters_ids)->get();
         $characters_list->load(['characterIcon']);
+        
+        $account_characters = $request->actualAccount->accountCharacters;
+        $account_characters->load(['accountWeapon']);
+
+        $account_weapons_selected_ids = $account_characters->map(function($account_character) {
+            return $account_character->account_weapon_id;
+        });
+        $account_weapons_list = $request->actualAccount->accountWeapons()->whereNotIn('id', $account_weapons_selected_ids)->get();
+        $account_weapons_list->load(['weapon.weaponIcon']);
 
         $model = new AccountCharacter();
         return [
             'form' => [
-                'characters' => CharacterResource::collection($characters_list)
+                'characters' => CharacterResource::collection($characters_list),
+                'account_weapons' => WeaponResource::collection($account_weapons_list)
             ],
             'model' => $model
         ];
@@ -61,12 +72,12 @@ class CharactersController extends Controller
         $model = new AccountCharacter();
         $model->account_id = $request->actualAccount->id;
         $model->character_id = $request->input('character.id');
-        $model->account_weapon_id = 0;
+        $model->account_weapon_id = $request->input('account_weapon.id');
         $model->level = $request->input('level');
         $model->constellation_level = $request->input('constellation_level');
-        $model->basic_talent_level = 1;
-        $model->elemental_talent_level = 1;
-        $model->burst_talent_level = 1;
+        $model->basic_talent_level = $request->input('basic_talent_level');
+        $model->elemental_talent_level = $request->input('elemental_talent_level');
+        $model->burst_talent_level = $request->input('burst_talent_level');
         $model->friendship_level = 1;
         $model->artf_flower_id = 0;
         $model->artf_flower_level = 0;
@@ -107,15 +118,18 @@ class CharactersController extends Controller
         $model = AccountCharacter::find($id);
         if($model->account_id != $request->actualAccount->id) throw new CharacterDoNotBelongsToActualAccountException();
         
-        $model->load(['character.characterIcon']);
+        $model->load(['character.characterIcon', 'accountWeapon.weapon.weaponIcon']);
 
         $characters_list = Character::where('released','=',1)->get();
         $characters_list->load(['characterIcon']);
 
+        $account_weapons_list = $request->actualAccount->accountWeapons;
+        $account_weapons_list->load(['weapon.weaponIcon']);
 
         return [
             'form' => [
-                'characters' => CharacterResource::collection($characters_list)
+                'characters' => CharacterResource::collection($characters_list),
+                'account_weapons' => WeaponResource::collection($account_weapons_list)
             ],
             'model' => new CharactersCharacterResource($model)
         ];
@@ -134,12 +148,12 @@ class CharactersController extends Controller
         if($model->account_id != $request->actualAccount->id) throw new CharacterDoNotBelongsToActualAccountException();
         $model->account_id = $request->actualAccount->id;
         $model->character_id = $request->input('character.id');
-        $model->account_weapon_id = 0;
+        $model->account_weapon_id = $request->input('account_weapon.id');
         $model->level = $request->input('level');
         $model->constellation_level = $request->input('constellation_level');
-        $model->basic_talent_level = 1;
-        $model->elemental_talent_level = 1;
-        $model->burst_talent_level = 1;
+        $model->basic_talent_level = $request->input('basic_talent_level');
+        $model->elemental_talent_level = $request->input('elemental_talent_level');
+        $model->burst_talent_level = $request->input('burst_talent_level');
         $model->friendship_level = 1;
         $model->artf_flower_id = 0;
         $model->artf_flower_level = 0;

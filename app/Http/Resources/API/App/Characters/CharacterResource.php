@@ -20,7 +20,6 @@ class CharacterResource extends JsonResource
         if(isset($data['character_side_icon']) AND $data['character_side_icon'] != null) $data['character_side_icon'] = new ImageResource($data['character_side_icon']);
         if(isset($data['character_gacha_card']) AND $data['character_gacha_card'] != null) $data['character_gacha_card'] = new ImageResource($data['character_gacha_card']);
         if(isset($data['character_gacha_splash']) AND $data['character_gacha_splash'] != null) $data['character_gacha_splash'] = new ImageResource($data['character_gacha_splash']);
-        // if(isset($data['element']) AND $data['element'] != null) $data['element'] = new ElementResource($data['element']);
         // if(isset($data['vision']) AND $data['vision'] != null) $data['vision'] = new VisionResource($data['vision']);
         // if(isset($data['weapon_type']) AND $data['weapon_type'] != null) $data['weapon_type'] = new WeaponTypeResource($data['weapon_type']);
         // if(isset($data['ascension_materials']) AND $data['ascension_materials'] != null) $data['ascension_materials'] = AscensionMaterialResource::collection($data['ascension_materials']);
