@@ -3,6 +3,7 @@
 namespace App\Models\Account;
 
 use App\Models\Account;
+use App\Models\Weapon as ModelsWeapon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,7 +20,7 @@ class Weapon extends Model
     }
 
     public function weapon(){
-        return $this->belongsTo(Weapon::class, 'weapon_id');
+        return $this->belongsTo(ModelsWeapon::class, 'weapon_id');
     }
 
     public function accountCharacter(){

@@ -61,6 +61,7 @@ Route::prefix('app')->name('api.app.')->group(function(){
     Route::middleware(['auth:sanctum', 'app.account'])->group(function () {
         Route::resource('/auth/logout', App\Auth\LogoutController::class)->only(['store']);
         Route::resource('/account/characters', App\Account\CharactersController::class);
+        Route::resource('/account/weapons', App\Account\WeaponsController::class);
     });
 });
 
