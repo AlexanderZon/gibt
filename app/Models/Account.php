@@ -29,7 +29,7 @@ class Account extends Model
     }
 
     public function accountCharacterList(){
-        return $this->hasMany(CharacterList::class, 'account_id', 'id');
+        return $this->hasMany(CharacterList::class, 'account_id', 'id')->orderBy('order', 'ASC');
     }
 
     public function accountCharacterToBuild(){

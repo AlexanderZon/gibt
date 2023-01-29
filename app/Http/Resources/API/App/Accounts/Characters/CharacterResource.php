@@ -19,6 +19,11 @@ class CharacterResource extends JsonResource
         $data = parent::toArray($request);
         if(isset($data['character']) AND $data['character'] != null) $data['character'] = new CharactersCharacterResource($data['character']);
         if(isset($data['account_weapon']) AND $data['account_weapon'] != null) $data['account_weapon'] = new WeaponResource($data['account_weapon']);
+        if(isset($data['account_character_list']) AND $data['account_character_list'] != null) {
+            $data['is_building'] = true;
+        } else {
+            $data['is_building'] = false;
+        }
         return $data;
     }
 }

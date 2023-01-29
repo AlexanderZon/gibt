@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API\App\Account;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\API\App\Accounts\Characters\CharacterResource as CharactersCharacterResource;
+use App\Http\Resources\API\App\Accounts\Characters\CharacterResource as AccountCharactersCharacterResource;
 use App\Http\Resources\API\App\Characters\CharacterResource;
 use App\Models\Account\Character as AccountCharacter;
 use App\Models\Character as Character;
@@ -23,10 +23,10 @@ class CharactersController extends Controller
     public function index(Request $request)
     {
         $list = $request->actualAccount->accountCharacters;
-        $list->load(['character.characterIcon']);
+        $list = self::loadAccountCharacterData($list);
 
         return [
-            'list' => CharactersCharacterResource::collection($list)
+            'list' => AccountCharactersCharacterResource::collection($list)
         ];
     }
 
@@ -93,7 +93,7 @@ class CharactersController extends Controller
 
         $model->load(['character.characterIcon']);
 
-        return new CharactersCharacterResource($model);
+        return new AccountCharactersCharacterResource($model);
     }
 
     /**
@@ -131,7 +131,7 @@ class CharactersController extends Controller
                 'characters' => CharacterResource::collection($characters_list),
                 'account_weapons' => WeaponResource::collection($account_weapons_list)
             ],
-            'model' => new CharactersCharacterResource($model)
+            'model' => new AccountCharactersCharacterResource($model)
         ];
     }
 
@@ -146,6 +146,7 @@ class CharactersController extends Controller
     {
         $model = AccountCharacter::find($id);
         if($model->account_id != $request->actualAccount->id) throw new CharacterDoNotBelongsToActualAccountException();
+
         $model->account_id = $request->actualAccount->id;
         $model->character_id = $request->input('character.id');
         $model->account_weapon_id = $request->input('account_weapon.id');
@@ -169,7 +170,7 @@ class CharactersController extends Controller
 
         $model->load(['character.characterIcon']);
 
-        return new CharactersCharacterResource($model);
+        return new AccountCharactersCharacterResource($model);
     }
 
     /**
@@ -184,6 +185,17 @@ class CharactersController extends Controller
         if($model->account_id != $request->actualAccount->id) throw new CharacterDoNotBelongsToActualAccountException();
 
         $model->delete();
-        return new CharactersCharacterResource($model);
+        return new AccountCharactersCharacterResource($model);
+    }
+
+    public static function loadAccountCharacterData($model)
+    {
+        $model->load([
+            'character.characterIcon',
+            'accountWeapon.weapon.weaponIcon',
+            'accountCharacterList'
+        ]);
+
+        return $model;
     }
 }

@@ -12,7 +12,7 @@ class CharacterList extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'account_character_list';
+    protected $table = 'account_characters_list';
 
     public function accountCharacter(){
         return $this->belongsTo(Character::class, 'account_character_id', 'id');

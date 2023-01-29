@@ -47,4 +47,8 @@ class Character extends Model
     public function artifactCirclet(){
         return $this->belongsTo(Artifact::class, 'artf_circlet_id', 'id');
     }
+
+    public function accountCharacterList(){
+        return $this->hasOne(CharacterList::class, 'account_character_id', 'id');
+    }
 }

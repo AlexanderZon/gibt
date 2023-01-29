@@ -23,7 +23,8 @@ class WeaponsController extends Controller
         $list = $request->actualAccount->accountWeapons;
         $list->load([
             'weapon.weaponIcon',
-            'weapon.weaponAwakenedIcon'
+            'weapon.weaponAwakenedIcon',
+            'accountCharacter.character.characterIcon'
         ]);
 
         return [
