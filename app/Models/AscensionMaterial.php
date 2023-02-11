@@ -38,4 +38,19 @@ class AscensionMaterial extends Model
     public function drops(){
         return $this->belongsToMany(LivingBeing::class, 'ascension_material_drops', 'ascension_material_id', 'living_being_id');
     }
+
+    public function syncFarmingDays($farming_days){
+        $this->ascensionMaterialFarmingDays()->delete();
+        
+        foreach($farming_days as $farming_day){
+            if($this->ascensionMaterialFarmingDays()->where('day', '=', $farming_day['day'])->withTrashed()->count() > 0){
+                $this->ascensionMaterialFarmingDays()->where('day', '=', $farming_day['day'])->withTrashed()->first()->restore();
+            } else {
+                $new_farming_day = new FarmingDay();
+                $new_farming_day->ascension_material_id = $this->id;
+                $new_farming_day->day = $farming_day['day'];
+                $new_farming_day->save();
+            }
+        }
+    }
 }

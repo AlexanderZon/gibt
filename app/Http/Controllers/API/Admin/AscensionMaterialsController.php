@@ -20,7 +20,7 @@ class AscensionMaterialsController extends Controller
     {
         $ascension_materials = AscensionMaterial::orderBy('order', 'DESC')->get();
 
-        $ascension_materials->load(['ascensionMaterialTypes']);
+        $ascension_materials->load(['ascensionMaterialTypes', 'ascensionMaterialFarmingDays']);
 
         return [
             'data' => AscensionMaterialResource::collection($ascension_materials),
@@ -59,8 +59,9 @@ class AscensionMaterialsController extends Controller
         $ascension_material->save();
 
         $ascension_material->ascensionMaterialTypes()->sync($request->input('ascension_material_typeables'));
+        $ascension_material->syncFarmingDays($request->input('ascension_material_farming_days'));
 
-        $ascension_material->load(['ascensionMaterialTypes']);
+        $ascension_material->load(['ascensionMaterialTypes', 'ascensionMaterialFarmingDays']);
 
         return new AscensionMaterialResource($ascension_material);
     }
@@ -104,8 +105,9 @@ class AscensionMaterialsController extends Controller
         $ascension_material->save();
 
         $ascension_material->ascensionMaterialTypes()->sync($request->input('ascension_material_typeables'));
+        $ascension_material->syncFarmingDays($request->input('ascension_material_farming_days'));
 
-        $ascension_material->load(['ascensionMaterialTypes']);
+        $ascension_material->load(['ascensionMaterialTypes', 'ascensionMaterialFarmingDays']);
 
         return new AscensionMaterialResource($ascension_material);
     }
