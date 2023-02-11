@@ -63,6 +63,7 @@ Route::prefix('app')->name('api.app.')->group(function(){
         Route::resource('/account/dashboard', App\Account\DashboardController::class)->only(['index']);
         Route::post('/account/characters/list/add', [ App\Account\CharactersListController::class, 'add' ]);
         Route::post('/account/characters/list/remove', [ App\Account\CharactersListController::class, 'remove' ]);
+        Route::resource('/account/characters', App\Account\CharactersController::class);
         Route::resource('/account/weapons', App\Account\WeaponsController::class);
     });
 });
