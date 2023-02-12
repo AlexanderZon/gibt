@@ -5,7 +5,7 @@ namespace App\Http\Resources\API\App\Accounts\Dashboard;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
-class TalentBookResource extends JsonResource
+class WeapAscensionMaterialResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,7 +17,9 @@ class TalentBookResource extends JsonResource
     {
         $data = $this->resource;
         if(isset($data->character_icon) AND $data->character_icon != null) $data->character_icon = Storage::url($data->character_icon);
-        if(isset($data->talent_book_icon) AND $data->talent_book_icon != null) $data->talent_book_icon = Storage::url($data->talent_book_icon);
+        if(isset($data->weapon_icon) AND $data->weapon_icon != null) $data->weapon_icon = Storage::url($data->weapon_icon);
+        if(isset($data->ascension_material_icon) AND $data->ascension_material_icon != null) $data->ascension_material_icon = Storage::url($data->ascension_material_icon);
+        if(isset($data->quantity) AND $data->quantity != null) $data->quantity = (int) $data->quantity;
         return $data;
     }
 }
