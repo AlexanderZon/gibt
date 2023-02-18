@@ -21,6 +21,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $talent_books = self::getTalentBooks($request);
+        $talent_common_items = self::getTalentCommonItems($request);
         $boss_materials = self::getBossMaterials($request);
         $weap_primary_materials = self::getWeaponPrimaryMaterials($request);
         $char_elemental_stones = self::getCharacterElementalStones($request);
@@ -32,6 +33,7 @@ class DashboardController extends Controller
 
         return [
             'talent_books' => $talent_books,
+            'talent_common_items' => $talent_common_items,
             'boss_materials' => $boss_materials,
             'weap_primary_materials' => $weap_primary_materials,
             'char_elemental_stones' => $char_elemental_stones,
@@ -146,6 +148,43 @@ class DashboardController extends Controller
             ON c.id = j.ascension_material_id AND j.`day` = ".$actual_day." AND j.deleted_at IS NULL 
         GROUP BY b.id, c.id;");
 
+        return CharAscensionMaterialResource::collection($list);
+    }
+
+    private function getTalentCommonItems(Request $request)
+    {
+        $account_id = $request->actualAccount->id;
+        
+        $list = DB::select("SELECT b.id AS `character_id`, b.name AS `character_name`, d.url AS `character_icon`, c.id AS `ascension_material_id`, c.name AS `ascension_material_name`, c.icon AS `ascension_material_icon`, c.rarity AS `ascension_material_rarity`, SUM(a.quantity) AS `quantity` FROM 
+            ((SELECT b.character_id AS `character_id`, GROUP_CONCAT(e.`level`) AS `account_character_skill_level`, e.char_common_item_id, SUM(e.char_common_item_quantity) AS `quantity`, 'basic' AS `talent_type` FROM account_characters_list AS a
+                INNER JOIN account_characters AS b
+                    ON a.account_character_id = b.id AND a.deleted_at IS NULL AND b.deleted_at IS NULL 
+                INNER JOIN character_skill_ascensions AS e
+                    ON e.character_id = b.character_id AND e.deleted_at IS NULL AND e.`level` > b.basic_talent_level AND e.`level` <= ".self::$account_character_max_skill_level."
+                WHERE b.account_id = ".$account_id."
+                GROUP BY b.character_id, e.char_common_item_id) UNION ALL 
+            (SELECT b.character_id AS `character_id`, GROUP_CONCAT(e.`level`) AS `account_character_skill_level`, e.char_common_item_id, SUM(e.char_common_item_quantity) AS `quantity`, 'elemental' AS `talent_type` FROM account_characters_list AS a
+                INNER JOIN account_characters AS b
+                    ON a.account_character_id = b.id AND a.deleted_at IS NULL AND b.deleted_at IS NULL 
+                INNER JOIN character_skill_ascensions AS e
+                    ON e.character_id = b.character_id AND e.deleted_at IS NULL AND e.`level` > b.elemental_talent_level AND e.`level` <= ".self::$account_character_max_skill_level."
+                WHERE b.account_id = ".$account_id."
+                GROUP BY b.character_id, e.char_common_item_id) UNION ALL 
+            (SELECT b.character_id AS `character_id`, GROUP_CONCAT(e.`level`) AS `account_character_skill_level`, e.char_common_item_id, SUM(e.char_common_item_quantity) AS `quantity`, 'burst' AS `talent_type` FROM account_characters_list AS a
+                INNER JOIN account_characters AS b
+                    ON a.account_character_id = b.id AND a.deleted_at IS NULL AND b.deleted_at IS NULL 
+                INNER JOIN character_skill_ascensions AS e
+                    ON e.character_id = b.character_id AND e.deleted_at IS NULL AND e.`level` > b.burst_talent_level AND e.`level` <= ".self::$account_character_max_skill_level."
+                WHERE b.account_id = ".$account_id."
+                GROUP BY b.character_id, e.char_common_item_id)) as a
+            INNER JOIN characters AS b
+                ON a.character_id = b.id AND b.deleted_at IS NULL 
+            INNER JOIN ascension_materials AS c
+                ON a.char_common_item_id = c.id AND c.deleted_at IS NULL 
+            INNER JOIN character_images AS d
+                ON b.id = d.character_id AND d.`type` = 'icon' AND d.deleted_at IS NULL 
+            GROUP BY b.id, c.id;");
+    
         return CharAscensionMaterialResource::collection($list);
     }
 
