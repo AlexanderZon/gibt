@@ -65,6 +65,10 @@ Route::prefix('app')->name('api.app.')->group(function(){
         Route::post('/account/characters/list/remove', [ App\Account\CharactersListController::class, 'remove' ]);
         Route::resource('/account/characters', App\Account\CharactersController::class);
         Route::resource('/account/weapons', App\Account\WeaponsController::class);
+
+        Route::put('/account/settings/accounts/active/{account_id}', [ App\Account\SettingsController::class, 'setActiveAccount' ]);
+        Route::post('/account/settings/accounts', [ App\Account\SettingsController::class, 'storeAccounts' ]);
+        Route::get('/account/settings', [ App\Account\SettingsController::class, 'index' ]);
     });
 });
 
