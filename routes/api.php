@@ -60,13 +60,15 @@ Route::prefix('app')->name('api.app.')->group(function(){
     Route::resource('/auth/check', App\Auth\CheckController::class)->only(['index']);
     Route::middleware(['auth:sanctum', 'app.account'])->group(function () {
         Route::resource('/auth/logout', App\Auth\LogoutController::class)->only(['store']);
-        Route::resource('/account/dashboard', App\Account\DashboardController::class)->only(['index']);
+        Route::get('/account/dashboard', [ App\Account\DashboardController::class, 'index' ]);
         Route::post('/account/characters/list/add', [ App\Account\CharactersListController::class, 'add' ]);
         Route::post('/account/characters/list/remove', [ App\Account\CharactersListController::class, 'remove' ]);
         Route::resource('/account/characters', App\Account\CharactersController::class);
         Route::resource('/account/weapons', App\Account\WeaponsController::class);
 
         Route::put('/account/settings/accounts/active/{account_id}', [ App\Account\SettingsController::class, 'setActiveAccount' ]);
+        Route::delete('/account/settings/accounts/{account_id}', [ App\Account\SettingsController::class, 'deleteAccounts' ]);
+        Route::put('/account/settings/accounts/{account_id}', [ App\Account\SettingsController::class, 'updateAccounts' ]);
         Route::post('/account/settings/accounts', [ App\Account\SettingsController::class, 'storeAccounts' ]);
         Route::get('/account/settings', [ App\Account\SettingsController::class, 'index' ]);
     });

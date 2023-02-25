@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\App\Account;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\API\App\Accounts\Dashboard\CharAscensionMaterialResource;
 use App\Http\Resources\API\App\Accounts\Dashboard\WeapAscensionMaterialResource;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -20,18 +21,46 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
-        $talent_books = self::getTalentBooks($request);
-        $talent_common_items = self::getTalentCommonItems($request);
-        $boss_materials = self::getBossMaterials($request);
-        $weap_primary_materials = self::getWeaponPrimaryMaterials($request);
-        $char_elemental_stones = self::getCharacterElementalStones($request);
-        $char_jewels = self::getCharacterJewels($request);
-        $char_local_materials = self::getCharacterLocalMaterials($request);
-        $char_common_items = self::getCharacterCommonItems($request);
-        $weap_secondary_materials = self::getWeaponSecondaryMaterials($request);
-        $weap_common_items = self::getWeaponCommonItems($request);
+        $account_id = $request->actualAccount->id;
+        $day = now()->dayOfWeek+1;
+
+        $talent_books = self::getTalentBooks($account_id, $day);
+        $talent_common_items = self::getTalentCommonItems($account_id);
+        $boss_materials = self::getBossMaterials($account_id);
+        $weap_primary_materials = self::getWeaponPrimaryMaterials($account_id, $day);
+        $char_elemental_stones = self::getCharacterElementalStones($account_id);
+        $char_jewels = self::getCharacterJewels($account_id);
+        $char_local_materials = self::getCharacterLocalMaterials($account_id);
+        $char_common_items = self::getCharacterCommonItems($account_id);
+        $weap_secondary_materials = self::getWeaponSecondaryMaterials($account_id);
+        $weap_common_items = self::getWeaponCommonItems($account_id);
+
+        $day_farming = [];
+        $server_hours_diff = 0;
+        switch($request->actualAccount->game_server){
+            case 'NA':
+                $server_hours_diff = -5;
+                break;
+            case 'EU':
+                $server_hours_diff = 1;
+                break;
+            default:
+                $server_hours_diff = 8;
+                break;
+        }
+        for($i = -3; $i <= 3; $i++){
+            $actual_day = now()->addDays($i)->addHours($server_hours_diff);
+            $day = $actual_day->dayOfWeek+1;
+            $actual_day_farming = [
+                'date' => $actual_day,
+                'talent_books' => self::getTalentBooks($account_id, $day),
+                'weap_primary_materials' => self::getWeaponPrimaryMaterials($account_id, $day),
+            ];
+            $day_farming[$i] = $actual_day_farming;
+        }
 
         return [
+            'day_farming' => $day_farming,
             'talent_books' => $talent_books,
             'talent_common_items' => $talent_common_items,
             'boss_materials' => $boss_materials,
@@ -50,72 +79,22 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-    private static function getTalentBooks(Request $request)
+    public function create(Request $request, $date)
     {
         $account_id = $request->actualAccount->id;
-        $actual_day = now()->dayOfWeek+1;
+        $day = (new Carbon($date))->dayOfWeek+1;
         
+        $talent_books = self::getTalentBooks($account_id, $day);
+        $weap_primary_materials = self::getWeaponPrimaryMaterials($account_id, $day);
+
+        return [
+            'talent_books' => $talent_books,
+            'weap_primary_materials' => $weap_primary_materials,
+        ];
+    }
+
+    private static function getTalentBooks($account_id, $day)
+    {        
         $list = DB::select("SELECT b.id AS `character_id`, b.name AS `character_name`, d.url AS `character_icon`, c.id AS `ascension_material_id`, c.name AS `ascension_material_name`, c.icon AS `ascension_material_icon`, c.rarity AS `ascension_material_rarity`, SUM(a.quantity) AS `quantity`, j.`day` IS NOT NULL AS `can_farm_today` FROM 
         ((SELECT b.character_id AS `character_id`, GROUP_CONCAT(e.`level`) AS `account_character_skill_level`, e.talent_book_item_id, SUM(e.talent_book_item_quantity) AS `quantity`, 'basic' AS `talent_type` FROM account_characters_list AS a
             INNER JOIN account_characters AS b
@@ -145,16 +124,14 @@ class DashboardController extends Controller
         INNER JOIN character_images AS d
             ON b.id = d.character_id AND d.`type` = 'icon'  AND d.deleted_at IS NULL 
         LEFT JOIN ascension_material_farming_days AS j
-            ON c.id = j.ascension_material_id AND j.`day` = ".$actual_day." AND j.deleted_at IS NULL 
+            ON c.id = j.ascension_material_id AND j.`day` = ".$day." AND j.deleted_at IS NULL 
         GROUP BY b.id, c.id;");
 
         return CharAscensionMaterialResource::collection($list);
     }
 
-    private function getTalentCommonItems(Request $request)
+    private function getTalentCommonItems($account_id)
     {
-        $account_id = $request->actualAccount->id;
-        
         $list = DB::select("SELECT b.id AS `character_id`, b.name AS `character_name`, d.url AS `character_icon`, c.id AS `ascension_material_id`, c.name AS `ascension_material_name`, c.icon AS `ascension_material_icon`, c.rarity AS `ascension_material_rarity`, SUM(a.quantity) AS `quantity` FROM 
             ((SELECT b.character_id AS `character_id`, GROUP_CONCAT(e.`level`) AS `account_character_skill_level`, e.char_common_item_id, SUM(e.char_common_item_quantity) AS `quantity`, 'basic' AS `talent_type` FROM account_characters_list AS a
                 INNER JOIN account_characters AS b
@@ -188,7 +165,7 @@ class DashboardController extends Controller
         return CharAscensionMaterialResource::collection($list);
     }
 
-    private static function getBossMaterials(Request $request)
+    private static function getBossMaterials($account_id)
     {
         $list = DB::select("SELECT b.id AS `character_id`, b.name AS `character_name`, d.url AS `character_icon`, c.id AS `ascension_material_id`, c.name AS `ascension_material_name`, c.icon AS `ascension_material_icon`, c.rarity AS `ascension_material_rarity`, SUM(a.quantity) AS `quantity` FROM 
         ((SELECT b.character_id AS `character_id`, GROUP_CONCAT(e.`level`) AS `account_character_skill_level`, e.talent_boss_item_id, SUM(e.talent_boss_item_quantity) AS `quantity`, 'basic' AS `talent_type` FROM account_characters_list AS a
@@ -196,21 +173,21 @@ class DashboardController extends Controller
                 ON a.account_character_id = b.id AND a.deleted_at IS NULL AND b.deleted_at IS NULL 
             INNER JOIN character_skill_ascensions AS e
                 ON e.character_id = b.character_id AND e.deleted_at IS NULL AND e.`level` > b.basic_talent_level AND e.`level` <= ".self::$account_character_max_skill_level."
-            WHERE b.account_id = ".$request->actualAccount->id."
+            WHERE b.account_id = ".$account_id."
             GROUP BY b.character_id, e.talent_boss_item_id) UNION ALL 
         (SELECT b.character_id AS `character_id`, GROUP_CONCAT(e.`level`) AS `account_character_skill_level`, e.talent_boss_item_id, SUM(e.talent_boss_item_quantity) AS `quantity`, 'elemental' AS `talent_type` FROM account_characters_list AS a
             INNER JOIN account_characters AS b
                 ON a.account_character_id = b.id AND a.deleted_at IS NULL AND b.deleted_at IS NULL 
             INNER JOIN character_skill_ascensions AS e
                 ON e.character_id = b.character_id AND e.deleted_at IS NULL AND e.`level` > b.elemental_talent_level AND e.`level` <= ".self::$account_character_max_skill_level."
-            WHERE b.account_id = ".$request->actualAccount->id."
+            WHERE b.account_id = ".$account_id."
             GROUP BY b.character_id, e.talent_boss_item_id) UNION ALL 
         (SELECT b.character_id AS `character_id`, GROUP_CONCAT(e.`level`) AS `account_character_skill_level`, e.talent_boss_item_id, SUM(e.talent_boss_item_quantity) AS `quantity`, 'burst' AS `talent_type` FROM account_characters_list AS a
             INNER JOIN account_characters AS b
                 ON a.account_character_id = b.id AND a.deleted_at IS NULL AND b.deleted_at IS NULL 
             INNER JOIN character_skill_ascensions AS e
                 ON e.character_id = b.character_id AND e.deleted_at IS NULL AND e.`level` > b.burst_talent_level AND e.`level` <= ".self::$account_character_max_skill_level."
-            WHERE b.account_id = ".$request->actualAccount->id."
+            WHERE b.account_id = ".$account_id."
             GROUP BY b.character_id, e.talent_boss_item_id)) as a
         INNER JOIN characters AS b
             ON a.character_id = b.id AND b.deleted_at IS NULL 
@@ -223,11 +200,8 @@ class DashboardController extends Controller
         return CharAscensionMaterialResource::collection($list);
     }
 
-    private static function getWeaponPrimaryMaterials(Request $request)
+    private static function getWeaponPrimaryMaterials($account_id, $day)
     {
-        $account_id = $request->actualAccount->id;
-        $actual_day = now()->dayOfWeek+1;
-
         $list = DB::select("SELECT e.weapon_id AS `weapon_id`, h.name AS `weapon_name`, i.url as `weapon_icon`, c.id AS `character_id`, c.name AS `character_name`, d.url AS `character_icon`, f.weap_primary_material_id AS `ascension_material_id`, g.name AS `ascension_material_name`, g.icon AS `ascension_material_icon`, g.rarity AS `ascension_material_rarity`, SUM(f.weap_primary_material_quantity) AS `quantity`, j.`day` IS NOT NULL AS `can_farm_today` FROM account_characters_list AS a
         INNER JOIN account_characters AS b
             ON a.account_character_id = b.id AND a.deleted_at IS NULL AND b.deleted_at IS NULL 
@@ -246,14 +220,14 @@ class DashboardController extends Controller
         INNER JOIN weapon_images AS i
             ON h.id = i.weapon_id AND i.`type` = 'icon'  AND i.deleted_at IS NULL 
         LEFT JOIN ascension_material_farming_days AS j
-            ON g.id = j.ascension_material_id AND j.`day` = ".$actual_day." AND j.deleted_at IS NULL 
+            ON g.id = j.ascension_material_id AND j.`day` = ".$day." AND j.deleted_at IS NULL 
         WHERE b.account_id = ".$account_id."
         GROUP BY e.weapon_id, f.weap_primary_material_id;");
         
         return WeapAscensionMaterialResource::collection($list);
     }
 
-    private static function getCharacterElementalStones(Request $request)
+    private static function getCharacterElementalStones($account_id)
     {
         $list = DB::select("SELECT c.id AS `character_id`, c.name AS `character_name`, f.url AS `character_icon`, e.id AS `ascension_material_id`, e.name AS `ascension_material_name`, e.icon AS `ascension_material_icon`, e.rarity AS `ascension_material_rarity`, SUM(d.char_elemental_stone_quantity) AS `quantity` FROM account_characters_list AS a 
         INNER JOIN account_characters AS b
@@ -266,13 +240,13 @@ class DashboardController extends Controller
             ON d.char_elemental_stone_id = e.id AND e.deleted_at IS NULL 
         INNER JOIN character_images AS f
             ON c.id = f.character_id AND f.`type` = 'icon'  AND f.deleted_at IS NULL 
-        WHERE b.account_id = ".$request->actualAccount->id."
+        WHERE b.account_id = ".$account_id."
         GROUP BY c.id, e.id;");
         
         return CharAscensionMaterialResource::collection($list);
     }
 
-    private static function getCharacterJewels(Request $request)
+    private static function getCharacterJewels($account_id)
     {
         $list = DB::select("SELECT c.id AS `character_id`, c.name AS `character_name`, f.url AS `character_icon`, e.id AS `ascension_material_id`, e.name AS `ascension_material_name`, e.icon AS `ascension_material_icon`, e.rarity AS `ascension_material_rarity`, SUM(d.char_jewel_quantity) AS `quantity` FROM account_characters_list AS a 
         INNER JOIN account_characters AS b
@@ -285,13 +259,13 @@ class DashboardController extends Controller
             ON d.char_jewel_id = e.id AND e.deleted_at IS NULL
         INNER JOIN character_images AS f
             ON c.id = f.character_id AND f.`type` = 'icon'  AND f.deleted_at IS NULL 
-        WHERE b.account_id = ".$request->actualAccount->id."
+        WHERE b.account_id = ".$account_id."
         GROUP BY c.id, e.id;");
         
         return CharAscensionMaterialResource::collection($list);
     }
 
-    private static function getCharacterLocalMaterials(Request $request)
+    private static function getCharacterLocalMaterials($account_id)
     {
         $list = DB::select("SELECT c.id AS `character_id`, c.name AS `character_name`, f.url AS `character_icon`, e.id AS `ascension_material_id`, e.name AS `ascension_material_name`, e.icon AS `ascension_material_icon`, e.rarity AS `ascension_material_rarity`, SUM(d.char_local_material_quantity) AS `quantity` FROM account_characters_list AS a 
         INNER JOIN account_characters AS b
@@ -304,13 +278,13 @@ class DashboardController extends Controller
             ON d.char_local_material_id = e.id AND e.deleted_at IS NULL
         INNER JOIN character_images AS f
             ON c.id = f.character_id AND f.`type` = 'icon'  AND f.deleted_at IS NULL 
-        WHERE b.account_id = ".$request->actualAccount->id."
+        WHERE b.account_id = ".$account_id."
         GROUP BY c.id, e.id;");
         
         return CharAscensionMaterialResource::collection($list);
     }
 
-    private static function getCharacterCommonItems(Request $request)
+    private static function getCharacterCommonItems($account_id)
     {
         $list = DB::select("SELECT c.id AS `character_id`, c.name AS `character_name`, f.url AS `character_icon`, e.id AS `ascension_material_id`, e.name AS `ascension_material_name`, e.icon AS `ascension_material_icon`, e.rarity AS `ascension_material_rarity`, SUM(d.char_common_item_quantity) AS `quantity` FROM account_characters_list AS a 
         INNER JOIN account_characters AS b
@@ -323,13 +297,13 @@ class DashboardController extends Controller
             ON d.char_common_item_id = e.id AND e.deleted_at IS NULL
         INNER JOIN character_images AS f
             ON c.id = f.character_id AND f.`type` = 'icon'  AND f.deleted_at IS NULL 
-        WHERE b.account_id = ".$request->actualAccount->id."
+        WHERE b.account_id = ".$account_id."
         GROUP BY c.id, e.id;");
         
         return CharAscensionMaterialResource::collection($list);
     }
 
-    private static function getWeaponSecondaryMaterials(Request $request)
+    private static function getWeaponSecondaryMaterials($account_id)
     {
         $list = DB::select("SELECT e.weapon_id AS `weapon_id`, h.name AS `weapon_name`, i.url AS `weapon_icon`, c.id AS `character_id`, c.name AS `character_name`, d.url AS `character_icon`, f.weap_secondary_material_id AS `ascension_material_id`, g.name AS `ascension_material_name`, g.icon AS `ascension_material_icon`, g.rarity AS `ascension_material_rarity`, SUM(f.weap_secondary_material_quantity) AS `quantity` FROM account_characters_list AS a
         INNER JOIN account_characters AS b
@@ -348,13 +322,13 @@ class DashboardController extends Controller
             ON e.weapon_id = h.id
         INNER JOIN weapon_images AS i
             ON h.id = i.weapon_id AND i.`type` = 'icon'  AND i.deleted_at IS NULL 
-        WHERE b.account_id = ".$request->actualAccount->id."
+        WHERE b.account_id = ".$account_id."
         GROUP BY e.weapon_id, f.weap_secondary_material_id;");
         
         return WeapAscensionMaterialResource::collection($list);
     }
 
-    private static function getWeaponCommonItems(Request $request)
+    private static function getWeaponCommonItems($account_id)
     {
         $list = DB::select("SELECT e.weapon_id AS `weapon_id`, h.name AS `weapon_name`, i.url AS `weapon_icon`, c.id AS `character_id`, c.name AS `character_name`, d.url AS `character_icon`, f.weap_common_item_id AS `ascension_material_id`, g.name AS `ascension_material_name`, g.icon AS `ascension_material_icon`, g.rarity AS `ascension_material_rarity`, SUM(f.weap_common_item_quantity) AS `quantity` FROM account_characters_list AS a
         INNER JOIN account_characters AS b
@@ -373,7 +347,7 @@ class DashboardController extends Controller
             ON e.weapon_id = h.id
         INNER JOIN weapon_images AS i
             ON h.id = i.weapon_id AND i.`type` = 'icon'  AND i.deleted_at IS NULL 
-        WHERE b.account_id = ".$request->actualAccount->id."
+        WHERE b.account_id = ".$account_id."
         GROUP BY e.weapon_id, f.weap_common_item_id;");
         
         return WeapAscensionMaterialResource::collection($list);

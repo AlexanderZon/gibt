@@ -30,12 +30,44 @@ class SettingsController extends Controller
     {
         $account = new Account();
         $account->user_id = auth()->user()->id;
-        $account->title = $request->title;
+        if($request->title != null){
+            $account->title = $request->title;
+        } else {
+            $account->title = '(No named account)';
+        }
         $account->game_server = $request->game_server;
         $account->is_active = false;
         $account->save();
 
         return $account;
+    }
+
+    public function updateAccounts(Request $request, $account_id)
+    {
+        $account = Account::where('user_id','=',auth()->user()->id)->find($account_id);
+        if($account){
+            if($request->title != null){
+                $account->title = $request->title;
+            } else {
+                $account->title = '(No named account)';
+            }
+            $account->game_server = $request->game_server;
+            $account->save();
+    
+            return $account;
+        }
+        abort(404);
+    }
+
+    public function deleteAccounts(Request $request, $account_id)
+    {
+        $account = Account::where('user_id','=',auth()->user()->id)->find($account_id);
+        if($account){
+            $account->delete();
+    
+            return $account;
+        }
+        abort(404);
     }
 
     public function setActiveAccount(Request $request, $account_id)
@@ -46,9 +78,11 @@ class SettingsController extends Controller
             $account->save();
         }
 
-        $active_account = Account::find($account_id);
-        $active_account->is_active = true;
-        $active_account->save();
+        $active_account = Account::where('user_id','=',auth()->user()->id)->find($account_id);
+        if($active_account){
+            $active_account->is_active = true;
+            $active_account->save();
+        }
 
         return $this->index($request);
     }
