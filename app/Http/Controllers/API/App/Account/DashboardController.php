@@ -36,25 +36,27 @@ class DashboardController extends Controller
         $weap_common_items = self::getWeaponCommonItems($account_id);
 
         $day_farming = [];
-        $server_hours_diff = 0;
+        $server_timezone = 0;
+        $server_reset_time = 4;
         switch($request->actualAccount->game_server){
             case 'NA':
-                $server_hours_diff = -5;
+                $server_timezone = -5;
                 break;
             case 'EU':
-                $server_hours_diff = 1;
+                $server_timezone = 1;
                 break;
             default:
-                $server_hours_diff = 8;
+                $server_timezone = 8;
                 break;
         }
         for($i = -3; $i <= 3; $i++){
-            $actual_day = now()->addDays($i)->addHours($server_hours_diff);
-            $day = $actual_day->dayOfWeek+1;
+            $server_time = now()->addDays($i)->addHours($server_timezone);
+            $reset_day = $server_time->subHours($server_reset_time)->dayOfWeek+1;
             $actual_day_farming = [
-                'date' => $actual_day,
-                'talent_books' => self::getTalentBooks($account_id, $day),
-                'weap_primary_materials' => self::getWeaponPrimaryMaterials($account_id, $day),
+                'date' => $server_time,
+                'reset_timestamp' => $server_time->addHours($server_reset_time),
+                'talent_books' => self::getTalentBooks($account_id, $reset_day),
+                'weap_primary_materials' => self::getWeaponPrimaryMaterials($account_id, $reset_day),
             ];
             $day_farming[$i] = $actual_day_farming;
         }
